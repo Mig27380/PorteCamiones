@@ -1,5 +1,5 @@
 module edu.sanjose.portecamiones.portecamiones {
-    requires javafx.controls;
+    requires transitive javafx.controls;
     requires javafx.fxml;
     requires java.sql;
 
