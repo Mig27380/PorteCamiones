@@ -1,5 +1,4 @@
 package edu.sanjose.portecamiones.portecamiones;
-
 import java.io.IOException;
 
 import javafx.application.Application;

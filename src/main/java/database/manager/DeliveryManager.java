@@ -72,12 +72,16 @@ public class DeliveryManager {
 	public static boolean makeOrder(Connection con, String description) {
 		List<Driver> availableDrivers = findAvailableDrivers(con);
 		Collections.shuffle(availableDrivers);
+		boolean areThereAvailable = !availableDrivers.isEmpty();
 		try (PreparedStatement stmt = con
 				.prepareStatement("insert into delivery(id, driver_id, departure_date, delivery_status, delivery_desc) "
 						+ "values((select max(d.id) + 1 from delivery d), ?, sysdate(), ?, ?)")) {
-			if(!availableDrivers.isEmpty()) stmt.setInt(1, availableDrivers.get(0).getId());
-			else stmt.setNull(1, 6);
-			stmt.setString(2, !availableDrivers.isEmpty() ? "ongoing" : "postponed");
+			if(!areThereAvailable) {
+				availableDrivers = DriverManager.findAll(con);
+				Collections.shuffle(availableDrivers);
+			}
+			stmt.setInt(1, availableDrivers.get(0).getId());
+			stmt.setString(2, areThereAvailable ? "ongoing" : "postponed");
 			stmt.setString(3, description);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {
@@ -89,7 +93,7 @@ public class DeliveryManager {
 	public static boolean confirmArrival(Connection con, int id) {
 		if (findById(con, id).getStatus().equals("ongoing")) {
 			try (PreparedStatement stmt = con
-					.prepareStatement("update delivery set delivery_status = 'ended' where id = ?")) {
+					.prepareStatement("update delivery set delivery_status = 'ended', arrival_date = sysdate() where id = ?")) {
 				stmt.setInt(1, id);
 				return stmt.executeUpdate() > 0;
 			} catch (SQLException e) {
@@ -101,7 +105,15 @@ public class DeliveryManager {
 
 	public static boolean takePostponedOrder(Connection con, int id) {
 		List<Integer> availableIds = new ArrayList<>();
-		
+		findAvailableDrivers(con).forEach(driver -> availableIds.add(driver.getId()));
+		if(availableIds.contains(findById(con, id).getDriverId())) {
+			try(PreparedStatement stmt = con.prepareStatement("update delivery set delivery_status = 'ongoing' where id = ?")) {
+				stmt.setInt(1, id);
+				return stmt.executeUpdate() > 0;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		return false;
 	}
 }

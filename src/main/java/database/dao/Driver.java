@@ -3,12 +3,17 @@ package database.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@ToString @Getter
+@ToString @Getter @Setter
 public class Driver {
+	
+	private SimpleStringProperty name;
+	
 	private int id;
 	private String nif;
 	private String firstName;
@@ -16,7 +21,7 @@ public class Driver {
 	private String phone;
 	private String email;
 	private int truckId;
-	@Setter private Truck truck;
+	private Truck truck;
 	
 	public Driver(ResultSet result) {
 		try {
@@ -30,5 +35,17 @@ public class Driver {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void setName() {
+		name.set(firstName);
+	}
+	
+	public StringProperty nameProperty() {
+		return name;
+	}
+	
+	public String getName() {
+		return name.get();
 	}
 }
