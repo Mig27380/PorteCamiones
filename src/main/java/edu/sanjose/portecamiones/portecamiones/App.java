@@ -2,9 +2,6 @@ package edu.sanjose.portecamiones.portecamiones;
 
 import java.io.IOException;
 
-import database.connector.Conector;
-import database.manager.DeliveryManager;
-import database.manager.DriverManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
